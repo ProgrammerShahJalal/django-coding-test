@@ -71,10 +71,12 @@
             <th>Title</th>
             <th>Description</th>
             <th>Variant</th>
+            <th>Price</th>
+            <th>In Stock</th>
             <th width="150px">Action</th>
           </tr>
         </thead>
-        {% for product in structed_data.object_list %}
+        {% for product in products %}
         <tbody>
           <tr>
             <td>{{ product.id }}</td>
@@ -84,22 +86,8 @@
               Created at : {{ product.created_at |timesince }} ago
             </td>
             <td>{{ product.description }}</td>
-            <td>
-              <dl
-                class="row mb-0"
-                style="height: 80px; overflow: hidden"
-                id="variant_{{product.id}}"
-              >
-              {% for i in product.productvariantprice_set.all %}
-                <dt class="col-sm-3 pb-0">{{i.product_variant_one.variant_title}} / {{i.product_variant_two.variant_title}} / {{i.product_variant_three.variant_title}}</dt>
-                <dd class="col-sm-9">
-                  <dl class="row mb-0">
-                    <dd class="col-sm-4 pb-0">Price : {{ i.price }}</dd>
-                    <dd class="col-sm-8 pb-0">InStock : {{ i.stock }}.</dd>
-                  </dl>
-                </dd>
-                {% endfor %}
-              </dl>
+            <td>{{ product.price }}</td>
+            <td>{{ product.stock }}</td>
               <button
                 onclick="$('#variant_{{product.id}}').toggleClass('h-auto')"
                 class="btn btn-sm btn-link"
@@ -107,6 +95,23 @@
                 Show more
               </button>
             </td>
+            <td>
+              <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant_{{product.id}}">
+                 {% for variant in product.productvariant_set.all %}
+                    <dt class="col-sm-3 pb-0">{{ variant.variant.title }}</dt>
+                    <dd class="col-sm-9">
+                       <dl class="row mb-0">
+                          <dd class="col-sm-4 pb-0">Price: {{ variant.price }}</dd>
+                          <dd class="col-sm-8 pb-0">In Stock: {{ variant.stock }}</dd>
+                       </dl>
+                    </dd>
+                 {% endfor %}
+              </dl>
+              <button onclick="$('#variant_{{product.id}}').toggleClass('h-auto')" class="btn btn-sm btn-link">
+                 Show more
+              </button>
+           </td>
+           
             <td>
               <div class="btn-group btn-group-sm">
                 <a href="" class="btn btn-success">Edit</a>
@@ -123,33 +128,46 @@
     <div class="row justify-content-between">
       <div class="col-md-6">
         <p>
-          Showing {{structed_data.object_list.0.id}} to {{ structed_data.object_list.1.id }} out of
-          {{number}}
+          Showing {{ products.start_index|default:0 }} to {{ products.end_index|default:0 }} out of
+          {{ products.paginator.count }}
         </p>
       </div>
       <div class="col-md-2">
         <nav aria-label="Page navigation example">
-            <ul class="pagination">
-              {% if structed_data.has_previous %}
+          <ul class="pagination">
+            {% if products.has_previous %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ structed_data.previous_page_number }}" aria-label="Previous">
-                  <span aria-hidden="true">&lt;</span>
+                <a class="page-link" href="?page=1" aria-label="First">
+                  <span aria-hidden="true">&laquo;&laquo;</span>
                 </a>
               </li>
-              <li class="page-item"><a class="page-link" href="?page={{ structed_data.previous_page_number }}">{{structed_data.previous_page_number}}</a></li>
-              {% endif %}
-              
-              <li class="page-item active"><a class="page-link" href="?page={{ structed_data.number }}">{{structed_data.number}}</a></li>
-              {% if structed_data.has_next %}
-              <li class="page-item"><a class="page-link" href="?page={{ structed_data.next_page_number }}">{{structed_data.next_page_number}}</a></li>
               <li class="page-item">
-                <a class="page-link" href="?page={{ structed_data.next_page_number }}" aria-label="Next">
-                  <span aria-hidden="true">&gt;</span>
+                <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
                 </a>
               </li>
-              {% endif %}
-            </ul>
-          </nav>
+            {% endif %}
+
+            {% for num in products.paginator.page_range %}
+              <li class="page-item {% if products.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+              </li>
+            {% endfor %}
+
+            {% if products.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ products.paginator.num_pages }}" aria-label="Last">
+                  <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
