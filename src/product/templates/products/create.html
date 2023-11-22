@@ -8,10 +8,11 @@
 {% block content %}
   <h2>Create Product</h2>
   <div class="row justify-content-center">
-    <form class="col-md-6" novalidate method="post" action="{% url 'product:create.product' %}">
+    <form class="col-md-6" method="post" action="{% url 'product:create.product' %}">
       {% csrf_token %}
       {{ product_form|crispy }}
-      {{ variant_formset|crispy }} 
+      {{ variant_formset|crispy }}
+
       <button class="btn btn-primary" type="submit">Create Product</button>
     </form>
   </div>
